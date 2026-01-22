@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { db } from "@/db/dexie";
 import { useCellImage } from "@/hooks/useCellImage";
@@ -8,11 +8,23 @@ export function ImageOverlay() {
   const upload = (cellId: string, file: File) => {
     const reader = new FileReader();
     reader.onload = async () => {
-      await db.cells.put({
-        mapId: map.id,
-        cellId,
-        image: reader.result as string
-      });
+      const existing = await db.cells
+        .where("[mapId+cellId]")
+        .equals([map.id, cellId])
+        .first();
+
+      if (existing) {
+        await db.cells.update(existing.id!, {
+          image: reader.result as string,
+        });
+      } else {
+        await db.cells.add({
+          mapId: map.id,
+          cellId,
+          image: reader.result as string,
+        });
+      }
+
     };
     reader.readAsDataURL(file);
   };
