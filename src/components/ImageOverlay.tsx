@@ -20,7 +20,6 @@ export function ImageOverlay() {
   const openFilePicker = (cellId: string) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
 
     input.onchange = e => {
       const file = (e.target as HTMLInputElement).files?.[0];
