@@ -27,7 +27,7 @@ const windows = Array.from({ length: ROWS * COLS }, (_, i) => {
 }).filter(Boolean); // Eliminamos los huecos de la puerta
 
 export const map = {
-  id: "mutis-family5",
+  id: "mutis-family6",
   image: "/G_KhHM6XMAAh5fs.jpeg",
   width: 736,
   height: 843,
