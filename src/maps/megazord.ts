@@ -15,7 +15,7 @@ const windows = Array.from({ length: ROWS * COLS }, (_, i) => {
 
   // Omitimos la posición de la puerta (fila 3, columnas 1 y 2 si empezamos de 0)
   // O simplemente generamos todas y filtramos la puerta manualmente si prefieres
-  if (row === 3 && (col === 1 || col === 2)) return null;
+  if (col === 2 && (row === 3 || row === 2)) return null;
 
   return {
     id: `w${i + 1}`,
