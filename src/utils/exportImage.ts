@@ -1,5 +1,5 @@
 import { db } from "@/db/dexie";
-import map from "@/maps/megazord.json";
+import { map } from "@/maps/megazord";
 
 /**
  * Carga segura de imágenes (evita EncodingError)
