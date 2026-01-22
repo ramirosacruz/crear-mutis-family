@@ -1,5 +1,4 @@
 import { ImageOverlay } from "@/components/ImageOverlay";
-import { ZoneInputs } from "@/components/ZoneInputs";
 import { ShareButton } from "@/components/ShareButton";
 
 export default function Home() {
@@ -57,7 +56,6 @@ export default function Home() {
       </div>
 
       <div className="space-y-4">
-        <ZoneInputs />
         <ShareButton />
       </div>
     </main>

@@ -1,13 +1,13 @@
 // Ajustes de precisión basados en las dimensiones 736x843
-const START_X = 118; // Margen izquierdo hasta la primera columna
+const START_X = 110; // Margen izquierdo hasta la primera columna
 const START_Y = 385; // Inicio de la rejilla principal (debajo del ático)
-const CELL_W = 112;  // Ancho de cada recuadro blanco
-const CELL_H = 104;  // Alto de cada recuadro blanco
+const CELL_W = 90;  // Ancho de cada recuadro blanco
+const CELL_H = 90;  // Alto de cada recuadro blanco
 const GAP_X = 18;    // Espacio horizontal entre ventanas
 const GAP_Y = 16;    // Espacio vertical entre ventanas
 
-const COLS = 4;
-const ROWS = 4;
+const COLS = 5;
+const ROWS = 5;
 
 const windows = Array.from({ length: ROWS * COLS }, (_, i) => {
   const row = Math.floor(i / COLS);
@@ -27,13 +27,12 @@ const windows = Array.from({ length: ROWS * COLS }, (_, i) => {
 }).filter(Boolean); // Eliminamos los huecos de la puerta
 
 export const map = {
-  id: "mutis-family3",
+  id: "mutis-family5",
   image: "/G_KhHM6XMAAh5fs.jpeg",
   width: 736,
   height: 843,
   cells: [
     { id: "attic", x: 312, y: 260, w: 112, h: 104 }, // Ventana superior central
-    ...windows,
-    { id: "door", x: 312, y: 625, w: 112, h: 150 }   // La puerta (opcional)
+    ...windows 
   ] as any
 };
