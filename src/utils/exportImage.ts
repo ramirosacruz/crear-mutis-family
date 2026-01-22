@@ -10,6 +10,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
+
 export async function generateFinalImage(): Promise<Blob> {
   const canvas = document.createElement("canvas");
   canvas.width = map.width;
@@ -56,3 +57,4 @@ export async function generateFinalImage(): Promise<Blob> {
       else resolve(blob);
     }, "image/png");
   });
+}
