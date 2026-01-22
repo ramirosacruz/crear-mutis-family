@@ -57,9 +57,8 @@ export function ImageOverlay() {
             <img
               src={data?.image || "/clic.png"}
               className="
-              opacity-10
                 w-full h-full object-cover
-                 
+                opacity-90 hover:opacity-100
                 transition
               "
               draggable={false}
