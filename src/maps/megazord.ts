@@ -7,7 +7,7 @@ const GAP_X = 18;    // Espacio horizontal entre ventanas
 const GAP_Y = 16;    // Espacio vertical entre ventanas
 
 const COLS = 5;
-const ROWS = 5;
+const ROWS = 4;
 
 const windows = Array.from({ length: ROWS * COLS }, (_, i) => {
   const row = Math.floor(i / COLS);
