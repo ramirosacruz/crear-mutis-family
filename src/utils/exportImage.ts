@@ -34,6 +34,7 @@ export async function generateFinalImage(): Promise<Blob> {
   // 2️⃣ Imágenes cargadas por el usuario
   const images = await db.cells
     .where("mapId")
+    
     .equals(map.id)
     .toArray();
 
