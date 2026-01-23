@@ -1,23 +1,26 @@
  "use client";
 
-import heic2any from "heic2any";
 import { db } from "@/db/dexie";
 import { useCellImage } from "@/hooks/useCellImage";
 import { map } from "@/maps/megazord";
 
 /* ---------- utils ---------- */
 
-async function normalizeImage(file: File): Promise<File> {
-  if (file.type === "image/heic" || file.type === "image/heif") {
-    const convertedBlob = (await heic2any({
+async function convertHeicIfNeeded(file: File): Promise<File> {
+  if (
+    file.type === "image/heic" ||
+    file.type === "image/heif" ||
+    file.name.toLowerCase().endsWith(".heic")
+  ) {
+    const { default: heic2any } = await import("heic2any");
+
+    const blob = (await heic2any({
       blob: file,
       toType: "image/jpeg",
       quality: 0.9,
     })) as Blob;
 
-    return new File([convertedBlob], "image.jpg", {
-      type: "image/jpeg",
-    });
+    return new File([blob], "image.jpg", { type: "image/jpeg" });
   }
 
   return file;
@@ -30,10 +33,10 @@ function fileToBase64Compressed(
 ): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    const objectUrl = URL.createObjectURL(file);
+    const url = URL.createObjectURL(file);
 
     img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
+      URL.revokeObjectURL(url);
 
       const scale = Math.min(
         maxSize / img.width,
@@ -53,11 +56,11 @@ function fileToBase64Compressed(
     };
 
     img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
+      URL.revokeObjectURL(url);
       reject("Image load error");
     };
 
-    img.src = objectUrl;
+    img.src = url;
   });
 }
 
@@ -99,7 +102,7 @@ function CellOverlay({
 
 export function ImageOverlay() {
   const upload = async (cellId: string, file: File) => {
-    const normalized = await normalizeImage(file);
+    const normalized = await convertHeicIfNeeded(file);
     const base64 = await fileToBase64Compressed(normalized);
 
     const existing = await db.cells
