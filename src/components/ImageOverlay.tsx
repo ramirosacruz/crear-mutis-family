@@ -1,10 +1,27 @@
-"use client";
+ "use client";
 
+import heic2any from "heic2any";
 import { db } from "@/db/dexie";
 import { useCellImage } from "@/hooks/useCellImage";
 import { map } from "@/maps/megazord";
 
 /* ---------- utils ---------- */
+
+async function normalizeImage(file: File): Promise<File> {
+  if (file.type === "image/heic" || file.type === "image/heif") {
+    const convertedBlob = (await heic2any({
+      blob: file,
+      toType: "image/jpeg",
+      quality: 0.9,
+    })) as Blob;
+
+    return new File([convertedBlob], "image.jpg", {
+      type: "image/jpeg",
+    });
+  }
+
+  return file;
+}
 
 function fileToBase64Compressed(
   file: File,
@@ -25,20 +42,14 @@ function fileToBase64Compressed(
       );
 
       const canvas = document.createElement("canvas");
-      canvas.width = img.width * scale;
-      canvas.height = img.height * scale;
+      canvas.width = Math.max(1, img.width * scale);
+      canvas.height = Math.max(1, img.height * scale);
 
       const ctx = canvas.getContext("2d");
-      if (!ctx) return reject("Canvas context null");
+      if (!ctx) return reject("Canvas error");
 
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      try {
-        const dataUrl = canvas.toDataURL("image/jpeg", quality);
-        resolve(dataUrl);
-      } catch (err) {
-        reject(err);
-      }
+      resolve(canvas.toDataURL("image/jpeg", quality));
     };
 
     img.onerror = () => {
@@ -63,7 +74,10 @@ function CellOverlay({
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => onPickFile(cell.id)}
+      onKeyDown={e => e.key === "Enter" && onPickFile(cell.id)}
       className="absolute cursor-pointer border border-white/30 hover:border-blue-500 hover:shadow-lg transition"
       style={{
         left: `${(cell.x / map.width) * 100}%`,
@@ -85,47 +99,42 @@ function CellOverlay({
 
 export function ImageOverlay() {
   const upload = async (cellId: string, file: File) => {
-    try {
-      const base64 = await fileToBase64Compressed(file);
+    const normalized = await normalizeImage(file);
+    const base64 = await fileToBase64Compressed(normalized);
 
-      const existing = await db.cells
-        .where("[mapId+cellId]")
-        .equals([map.id, cellId])
-        .first();
+    const existing = await db.cells
+      .where("[mapId+cellId]")
+      .equals([map.id, cellId])
+      .first();
 
-      if (existing) {
-        await db.cells.update(existing.id!, {
-          image: base64,
-        });
-      } else {
-        await db.cells.add({
-          mapId: map.id,
-          cellId,
-          image: base64,
-        });
-      }
-    } catch (err) {
-      console.error("Image upload failed:", err);
+    if (existing) {
+      await db.cells.update(existing.id!, { image: base64 });
+    } else {
+      await db.cells.add({
+        mapId: map.id,
+        cellId,
+        image: base64,
+      });
     }
   };
 
   const openFilePicker = (cellId: string) => {
     const input = document.createElement("input");
     input.type = "file";
-    input.accept = "image/*";
+    input.accept = "image/*,.heic,.heif";
+    input.style.display = "none";
 
-    input.addEventListener(
-      "change",
-      () => {
-        const file = input.files?.[0];
-        if (file) upload(cellId, file);
-      },
-      { once: true }
-    );
+    const onChange = () => {
+      const file = input.files?.[0];
+      if (file) upload(cellId, file);
 
-    document.body.appendChild(input); // Safari requirement
+      input.removeEventListener("change", onChange);
+      document.body.removeChild(input);
+    };
+
+    input.addEventListener("change", onChange);
+    document.body.appendChild(input);
     input.click();
-    document.body.removeChild(input);
   };
 
   return (
